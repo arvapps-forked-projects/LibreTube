@@ -38,6 +38,7 @@ import com.github.libretube.ui.interfaces.TimeFrameReceiver
 import com.github.libretube.ui.listeners.SeekbarPreviewListener
 import com.github.libretube.ui.models.PlayerViewModel
 import com.github.libretube.util.OfflineTimeFrameReceiver
+import com.github.libretube.util.PauseableTimer
 import kotlin.io.path.exists
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +56,11 @@ class OfflinePlayerActivity : BaseActivity() {
     private lateinit var playerBinding: ExoStyledPlayerControlViewBinding
     private val playerViewModel: PlayerViewModel by viewModels()
 
+    private val watchPositionTimer = PauseableTimer(
+        onTick = this::saveWatchPosition,
+        delayMillis = PlayerHelper.WATCH_POSITION_TIMER_DELAY_MS
+    )
+
     private val playerListener = object : Player.Listener {
         override fun onEvents(player: Player, events: Player.Events) {
             super.onEvents(player, events)
@@ -62,6 +68,17 @@ class OfflinePlayerActivity : BaseActivity() {
             playerBinding.duration.text = DateUtils.formatElapsedTime(
                 player.duration / 1000
             )
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            super.onIsPlayingChanged(isPlaying)
+
+            // Start or pause watch position timer
+            if (isPlaying) {
+                watchPositionTimer.resume()
+            } else {
+                watchPositionTimer.pause()
+            }
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
@@ -154,6 +171,12 @@ class OfflinePlayerActivity : BaseActivity() {
 
             player.playWhenReady = PlayerHelper.playAutomatically
             player.prepare()
+
+            if (PlayerHelper.watchPositionsVideo) {
+                PlayerHelper.getStoredWatchPosition(videoId, downloadInfo.download.duration)?.let {
+                    player.seekTo(it)
+                }
+            }
         }
     }
 
@@ -205,6 +228,12 @@ class OfflinePlayerActivity : BaseActivity() {
         }
     }
 
+    private fun saveWatchPosition() {
+        if (!PlayerHelper.watchPositionsVideo) return
+
+        PlayerHelper.saveWatchPosition(player, videoId)
+    }
+
     override fun onResume() {
         playerViewModel.isFullscreen.value = true
         super.onResume()
@@ -216,7 +245,11 @@ class OfflinePlayerActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        saveWatchPosition()
+
         player.release()
+        watchPositionTimer.destroy()
+
         super.onDestroy()
     }
 
