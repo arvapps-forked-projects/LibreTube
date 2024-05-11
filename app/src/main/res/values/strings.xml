@@ -65,7 +65,6 @@
     <string name="donate">Donate</string>
     <string name="uploaderAndVideoCount">%1$s • %2$d videos</string>
     <string name="subscriberAndVideoCounts">%1$s subscribers • %2$d videos</string>
-    <string name="commentedTimeWithSeparator"> • %1$s</string>
     <string name="videoCount">%1$d videos</string>
     <string name="noInternet">Connect to the Internet first.</string>
     <string name="retry">Retry</string>
@@ -73,6 +72,7 @@
     <string name="comments_count">Comments (%1$s)</string>
     <string name="replies">Replies</string>
     <string name="channels">Channels</string>
+    <string name="albums">Albums</string>
     <string name="all">All</string>
     <string name="playlists">Playlists</string>
     <string name="okay">OK</string>
@@ -234,6 +234,7 @@
     <string name="playerAudioFormat">Audio format for player</string>
     <string name="playerAudioQuality">Audio quality</string>
     <string name="worst_quality">Worst</string>
+    <string name="best_quality">Best</string>
     <string name="default_subtitle_language">Subtitle language</string>
     <string name="notifications">Notifications</string>
     <string name="notify_new_streams">Show notifications for new streams</string>
@@ -433,6 +434,9 @@
     <string name="fallback_piped_proxy_summary">Load videos via the proxy if connecting to YouTube directly doesn\'t work for the current video (increases the initial loading times). If disabled, YouTube music content likely won\'t play due to YT restrictions</string>
     <string name="dearrow">Enable DeArrow</string>
     <string name="dearrow_summary">Show more accurate and less sensationalist titles and thumbnails. Increases loading times</string>
+    <string name="contribute_to_dearrow">Contribute to DeArrow</string>
+    <string name="title">Title</string>
+    <string name="thumbnail_time">Thumbnail time</string>
     <string name="visibility">Visibility</string>
     <string name="visibility_public">Public</string>
     <string name="visibility_unlisted">Unlisted</string>
@@ -545,4 +549,6 @@
     <string name="tooltip_create_playlist">Create playlist</string>
     <string name="tooltip_scroll_to_top">Scroll to top</string>
     <string name="also_clear_watch_positions">Also clear watch positions</string>
+    <string name="import_temp_playlist">Import temporary playlist?</string>
+    <string name="import_temp_playlist_summary">Do you want to create a new playlist named \'%1$s\'? The playlist will contain %2$d videos.</string>
 </resources>

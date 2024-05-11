@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gradle/wrapper-validation-action@v2
+      - uses: gradle/wrapper-validation-action@v3
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
@@ -41,10 +41,10 @@ jobs:
 
       - name: Git Configuraion
         run: |
-          git config --global user.name "Bnyro"
-          git config --global user.email "bnyro@tutanota.com"
+          git config --global user.name "libretube-bot"
+          git config --global user.email "libretube@proton.me"
           git config --global credential.helper store
-          echo "https://bnyro:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
+          echo "https://libretube-bot:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
 
       - name: Compile
         run: |

@@ -1,11 +1,11 @@
 plugins {
     id("com.android.application")
-    id("com.google.devtools.ksp")
     id("kotlin-android")
     id("kotlinx-serialization")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -15,8 +15,8 @@ android {
         applicationId = "com.github.libretube"
         minSdk = 21
         targetSdk = 34
-        versionCode = 47
-        versionName = "0.21.1"
+        versionCode = 52
+        versionName = "0.23.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "app_name", "LibreTube")
 
@@ -107,10 +107,6 @@ dependencies {
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.service)
 
-    /* Testing */
-    androidTestImplementation(libs.androidx.test.junit)
-    androidTestImplementation(libs.androidx.test.espressoCore)
-
     /* Design */
     implementation(libs.material)
 
@@ -126,6 +122,7 @@ dependencies {
 
     /* Retrofit and Kotlinx Serialization */
     implementation(libs.square.retrofit)
+    implementation(libs.logging.interceptor)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.retrofit)
@@ -142,7 +139,7 @@ dependencies {
 
     /* Baseline profile generation */
     implementation(libs.androidx.profileinstaller)
-    "baselineProfile"(project(":baselineprofile"))
+    baselineProfile(project(":baselineprofile"))
 
     /* AndroidX Paging */
     implementation(libs.androidx.paging)

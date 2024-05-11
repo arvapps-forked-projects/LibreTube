@@ -5,6 +5,7 @@ object IntentData {
     const val playerData = "playerData"
     const val id = "id"
     const val videoId = "videoId"
+    const val videoIds = "videoIds"
     const val channelId = "channelId"
     const val channelName = "channelName"
     const val playlistId = "playlistId"
@@ -41,4 +42,5 @@ object IntentData {
     const val maxAudioQuality = "maxAudioQuality"
     const val audioLanguage = "audioLanguage"
     const val captionLanguage = "captionLanguage"
+    const val wasIntentStopped = "wasIntentStopped"
 }

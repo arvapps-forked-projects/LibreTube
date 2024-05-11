@@ -105,7 +105,7 @@
     <string name="enabled">Увімкнено</string>
     <string name="disabled">Вимкнено</string>
     <string name="shareTo">Поділитися посиланням з</string>
-    <string name="update_available">Версія %1$s доступна</string>
+    <string name="update_available">Доступне оновлення</string>
     <string name="update_available_text">Доступне нове оновлення. Натисніть, щоб відкрити сторінку випусків на GitHub.</string>
     <string name="downloads">Завантаження</string>
     <string name="update_summary">Перевірити наявність оновлень</string>
@@ -212,7 +212,7 @@
     <string name="repeat_mode_current">Поточний</string>
     <string name="picture_in_picture">Картинка в картинці</string>
     <string name="new_videos_badge_summary">Показувати значок із кількістю нових відео, якщо такі є</string>
-    <string name="repeat_mode_none">Немає</string>
+    <string name="repeat_mode_none">Вимкнено</string>
     <string name="skip_segment">Пропустити сегмент</string>
     <string name="local_subscriptions">Локальні підписки</string>
     <string name="preferences">Налаштування</string>
@@ -240,9 +240,9 @@
     <string name="unlimited">Необмежено</string>
     <string name="add_to_queue">Додати в чергу</string>
     <string name="repeat_mode">Режим повторення</string>
-    <string name="resize_mode_fit">Допасувати</string>
-    <string name="resize_mode_fill">Заповнити</string>
-    <string name="resize_mode_zoom">Збільшити</string>
+    <string name="resize_mode_fit">Допасування</string>
+    <string name="resize_mode_fill">Заповнення</string>
+    <string name="resize_mode_zoom">Наближення</string>
     <string name="maximum_image_cache">Макс. розмір кешу зображень</string>
     <string name="data_saver_mode">Режим заощадження даних</string>
     <string name="search_history_summary">Пам\'ятати історію пошуку</string>
@@ -264,7 +264,7 @@
     <string name="reset_watch_positions">Скинути</string>
     <string name="system_caption_style">Системний стиль субтитрів</string>
     <string name="captions">Субтитри</string>
-    <string name="none">Немає</string>
+    <string name="none">Відсутня</string>
     <string name="general">Загальні</string>
     <string name="instance_frontend_url">URL-адреса сервера</string>
     <string name="audio_video_summary">Якість і формат</string>
@@ -536,12 +536,19 @@
 \n%1$s до черги на завантаження</string>
     <string name="default_language">Типова</string>
     <string name="download_playlist">Завантажити список відтворення</string>
-    <string name="download_playlist_note">Будь ласка, оберіть максимальну якість аудіо/відео для завантаження. Субтитри будуть завантажені лише за наявності.</string>
+    <string name="download_playlist_note">Виберіть максимальну якість завантажуваного аудіо/відео. Субтитри будуть завантажені, лише якщо вони доступні.</string>
     <string name="enqueue_playlist_description">Показує сповіщення під час створення черги на завантаження відео зі списку відтворення.</string>
     <string name="also_clear_watch_positions">Також очистити позиції перегляду</string>
     <string name="behavior_when_minimized">Поведінка при згортанні</string>
     <string name="gestures">Жести</string>
     <string name="comments_count">Коментарі (%1$s)</string>
     <string name="external_player">Зовнішній програвач</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
+    <string name="show_updates">Перевіряти оновлення автоматично</string>
+    <string name="albums">Альбоми</string>
+    <string name="import_temp_playlist">Імпортувати тимчасовий список відтворення?</string>
+    <string name="import_temp_playlist_summary">Бажаєте створити новий список відтворення під назвою \"%1$s\"? Список відтворення міститиме %2$d відео.</string>
+    <string name="title">Заголовок</string>
+    <string name="contribute_to_dearrow">Внести покращення у DeArrow</string>
+    <string name="thumbnail_time">Показувати час на мініатюрі</string>
+    <string name="best_quality">Найвища</string>
 </resources>

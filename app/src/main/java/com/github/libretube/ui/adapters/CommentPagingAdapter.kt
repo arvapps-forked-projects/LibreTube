@@ -35,15 +35,18 @@ class CommentPagingAdapter(
     private val fragment: Fragment?,
     private val videoId: String,
     private val channelAvatar: String?,
-    private val parentComment: Comment? = null,
+    private val isRepliesAdapter: Boolean = false,
     private val handleLink: ((url: String) -> Unit)?,
     private val dismiss: () -> Unit
 ) : PagingDataAdapter<Comment, CommentsViewHolder>(CommentCallback) {
-    private val isRepliesAdapter = parentComment != null
-
-    override fun getItemCount() = (if (isRepliesAdapter) 1 else 0) + super.getItemCount()
+    private var clickEventConsumedByLinkHandler = false
 
     private fun navigateToReplies(comment: Comment) {
+        if (clickEventConsumedByLinkHandler) {
+            clickEventConsumedByLinkHandler = false
+            return
+        }
+
         val args = bundleOf(IntentData.videoId to videoId, IntentData.comment to comment)
         fragment!!.parentFragmentManager.commit {
             replace<CommentsRepliesFragment>(R.id.commentFragContainer, args = args)
@@ -52,22 +55,22 @@ class CommentPagingAdapter(
     }
 
     override fun onBindViewHolder(holder: CommentsViewHolder, position: Int) {
-        val comment = if (parentComment != null) {
-            if (position == 0) parentComment else getItem(position - 1)!!
-        } else {
-            getItem(position)!!
-        }
+        val comment = getItem(position)!!
+
         holder.binding.apply {
             commentAuthor.text = comment.author
             commentAuthor.setBackgroundResource(
                 if (comment.channelOwner) R.drawable.comment_channel_owner_bg else 0
             )
-            commentInfos.text = root.context
-                .getString(R.string.commentedTimeWithSeparator, comment.commentedTime)
+            commentInfos.text = comment.commentedTime
 
             commentText.movementMethod = LinkMovementMethodCompat.getInstance()
+            val linkHandler = LinkHandler {
+                clickEventConsumedByLinkHandler = true
+                handleLink?.invoke(it)
+            }
             commentText.text = comment.commentText?.replace("</a>", "</a> ")
-                ?.parseAsHtml(tagHandler = HtmlParser(LinkHandler(handleLink ?: {})))
+                ?.parseAsHtml(tagHandler = HtmlParser(linkHandler))
 
             ImageHelper.loadImage(comment.thumbnail, commentorImage, true)
             likesTextView.text = comment.likeCount.formatShort()

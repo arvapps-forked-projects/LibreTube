@@ -306,7 +306,7 @@
     <plurals name="months_ago">
         <item quantity="one">fa %d mes</item>
         <item quantity="many">fa %d mesos</item>
-        <item quantity="other"></item>
+        <item quantity="other"/>
     </plurals>
     <string name="tooltip_filter">Filtra</string>
     <string name="delete_all">Se suprimiran totes les descàrregues.</string>
@@ -490,12 +490,12 @@
     <plurals name="years_ago">
         <item quantity="one">fa %d any</item>
         <item quantity="many">fa %d anys</item>
-        <item quantity="other"></item>
+        <item quantity="other"/>
     </plurals>
     <plurals name="channel_new_streams">
         <item quantity="one">%d transmissió nova</item>
         <item quantity="many">%d transmissions noves</item>
-        <item quantity="other"></item>
+        <item quantity="other"/>
     </plurals>
     <string name="change">Canvia</string>
     <string name="gestures">Gestos</string>
@@ -521,7 +521,6 @@
     <string name="creation_date">Data de creació</string>
     <string name="sb_custom_colors_summary">Activa/desactiva els segments dels colors personalitzats per als segments SponsorBlock</string>
     <string name="tooltip_repeat">Repeteix</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="play_next">Reprodueix a continuació</string>
     <string name="navigation_bar">Barra de navegació</string>
     <string name="change_region">Sembla que les tendències no estan disponibles per a la regió actual. Si us plau, seleccioneu-ne una altra a la configuració.</string>

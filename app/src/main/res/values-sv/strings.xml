@@ -42,7 +42,7 @@
     <string name="disabled">Av</string>
     <string name="piped">Piped</string>
     <string name="youtube">YouTube</string>
-    <string name="update_available">Version %1$s tillgänglig</string>
+    <string name="update_available">Uppdatering tillgänglig</string>
     <string name="subscriptions">Prenumerationer</string>
     <string name="logout">Logga ut</string>
     <string name="library">Bibliotek</string>
@@ -533,7 +533,8 @@
     <string name="enqueueing_playlist_download">Köar videor för nedladdning av spellistan %1$s</string>
     <string name="behavior_when_minimized">Beteende när det är minimerat</string>
     <string name="gestures">Gester</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="comments_count">Kommentarer (%1$s)</string>
     <string name="external_player">Extern spelare</string>
+    <string name="show_updates">Kontrollera uppdateringar automatiskt</string>
+    <string name="albums">Album</string>
 </resources>

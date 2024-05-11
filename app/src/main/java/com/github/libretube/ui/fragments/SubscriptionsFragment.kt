@@ -1,7 +1,9 @@
 package com.github.libretube.ui.fragments
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +18,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.libretube.R
 import com.github.libretube.api.obj.StreamItem
 import com.github.libretube.api.obj.Subscription
@@ -24,7 +27,6 @@ import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.databinding.FragmentSubscriptionsBinding
 import com.github.libretube.db.DatabaseHelper
 import com.github.libretube.db.DatabaseHolder
-import com.github.libretube.enums.ContentFilter
 import com.github.libretube.extensions.dpToPx
 import com.github.libretube.extensions.formatShort
 import com.github.libretube.extensions.toID
@@ -43,10 +45,11 @@ import com.github.libretube.ui.sheets.ChannelGroupsSheet
 import com.github.libretube.ui.sheets.FilterSortBottomSheet
 import com.github.libretube.ui.sheets.FilterSortBottomSheet.Companion.FILTER_SORT_REQUEST_KEY
 import com.github.libretube.util.PlayingQueue
+import com.github.libretube.util.deArrow
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class SubscriptionsFragment : DynamicLayoutManagerFragment() {
     private var _binding: FragmentSubscriptionsBinding? = null
@@ -59,7 +62,9 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
     private var isCurrentTabSubChannels = false
     private var isAppBarFullyExpanded = true
 
-    var feedAdapter: VideosAdapter? = null
+    private var feedAdapter: VideosAdapter? = null
+    private val sortedFeed: MutableList<StreamItem> = mutableListOf()
+
     private var channelsAdapter: SubscriptionChannelAdapter? = null
     private var selectedSortOrder = PreferenceHelper.getInt(PreferenceKeys.FEED_SORT_ORDER, 0)
         set(value) {
@@ -73,6 +78,9 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
             PreferenceHelper.putBoolean(PreferenceKeys.HIDE_WATCHED_FROM_FEED, value)
             field = value
         }
+
+    private var subChannelsRecyclerViewState: Parcelable? = null
+    private var subFeedRecyclerViewState: Parcelable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -105,9 +113,11 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
         binding.subRefresh.isEnabled = true
         binding.subProgress.isVisible = true
 
-        if (!isCurrentTabSubChannels && viewModel.videoFeed.value == null) {
-            viewModel.fetchSubscriptions(requireContext())
+        if (viewModel.videoFeed.value == null) {
             viewModel.fetchFeed(requireContext())
+        }
+        if (viewModel.subscriptions.value == null) {
+            viewModel.fetchSubscriptions(requireContext())
         }
 
         viewModel.videoFeed.observe(viewLifecycleOwner) {
@@ -147,13 +157,7 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
         }
 
         binding.subFeed.addOnBottomReachedListener {
-            val binding = _binding ?: return@addOnBottomReachedListener
-
-            if (viewModel.videoFeed.value != null && !isCurrentTabSubChannels) {
-                binding.subRefresh.isRefreshing = true
-                feedAdapter?.updateItems()
-                binding.subRefresh.isRefreshing = false
-            }
+            loadNextFeedItems()
         }
 
         // add some extra margin to the subscribed channels while the mini player is visible
@@ -177,10 +181,51 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
             ChannelGroupsSheet().show(childFragmentManager, null)
         }
 
+        // manually restore the recyclerview state due to https://github.com/material-components/material-components-android/issues/3473
+        binding.subChannels.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                subChannelsRecyclerViewState = binding.subChannels.layoutManager?.onSaveInstanceState()
+            }
+        })
+
+        binding.subFeed.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                subFeedRecyclerViewState = binding.subFeed.layoutManager?.onSaveInstanceState()
+            }
+        })
+
         lifecycleScope.launch(Dispatchers.IO) {
             val groups = DatabaseHolder.Database.subscriptionGroupsDao().getAll()
                 .sortedBy { it.index }
             channelGroupsModel.groups.postValue(groups)
+        }
+    }
+
+    private fun loadNextFeedItems() {
+        val binding = _binding ?: return
+
+        val feedAdapter = feedAdapter ?: return
+
+        val hasMore = sortedFeed.size > feedAdapter.itemCount
+        if (viewModel.videoFeed.value != null && !isCurrentTabSubChannels && !binding.subRefresh.isRefreshing && hasMore) {
+            binding.subRefresh.isRefreshing = true
+
+            lifecycleScope.launch {
+                val toIndex = minOf(feedAdapter.itemCount + 10, sortedFeed.size)
+
+                var streamItemsToInsert = sortedFeed
+                    .subList(feedAdapter.itemCount, toIndex)
+                    .toList()
+
+                withContext(Dispatchers.IO) {
+                    runCatching { streamItemsToInsert = streamItemsToInsert.deArrow() }
+                }
+
+                feedAdapter.insertItems(streamItemsToInsert)
+                binding.subRefresh.isRefreshing = false
+            }
         }
     }
 
@@ -226,7 +271,7 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
     private fun playByGroup(groupIndex: Int) {
         val streams = viewModel.videoFeed.value.orEmpty()
             .filterByGroup(groupIndex)
-            .filterByStatusAndWatchPosition()
+            .let { DatabaseHelper.filterByStatusAndWatchPosition(it, hideWatched) }
             .sortedBySelectedOrder()
 
         if (streams.isEmpty()) return
@@ -291,27 +336,6 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
         return filter { group?.channels?.contains(it.url.toID()) != false }
     }
 
-    private fun List<StreamItem>.filterByStatusAndWatchPosition(): List<StreamItem> {
-        val streamItems = this.filter {
-            val isVideo = !it.isShort && !it.isLive
-
-            return@filter when {
-                !ContentFilter.SHORTS.isEnabled && it.isShort -> false
-                !ContentFilter.VIDEOS.isEnabled && isVideo -> false
-                !ContentFilter.LIVESTREAMS.isEnabled && it.isLive -> false
-                else -> true
-            }
-        }
-
-        return if (hideWatched) {
-            runBlocking {
-                DatabaseHelper.filterUnwatched(streamItems)
-            }
-        } else {
-            streamItems
-        }
-    }
-
     private fun List<StreamItem>.sortedBySelectedOrder() = when (selectedSortOrder) {
         0 -> this
         1 -> this.reversed()
@@ -328,11 +352,15 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
         binding.subRefresh.isRefreshing = false
         val feed = videoFeed
             .filterByGroup(selectedFilterGroup)
-            .filterByStatusAndWatchPosition()
+            .let {
+                DatabaseHelper.filterByStatusAndWatchPosition(it, hideWatched)
+            }
 
-        val sortedFeed = feed
+        val sorted = feed
             .sortedBySelectedOrder()
             .toMutableList()
+        sortedFeed.clear()
+        sortedFeed.addAll(sorted)
 
         // add an "all caught up item"
         if (selectedSortOrder == 0) {
@@ -353,10 +381,9 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
         binding.subFeed.isGone = notLoaded
         binding.emptyFeed.isVisible = notLoaded
 
-        feedAdapter = VideosAdapter(
-            sortedFeed.toMutableList(),
-            showAllAtOnce = false
-        )
+        feedAdapter = VideosAdapter(mutableListOf())
+        loadNextFeedItems()
+
         binding.subFeed.adapter = feedAdapter
         binding.toggleSubs.text = getString(R.string.subscriptions)
 
@@ -397,5 +424,17 @@ class SubscriptionsFragment : DynamicLayoutManagerFragment() {
 
         val subCount = subscriptions.size.toLong().formatShort()
         binding.toggleSubs.text = "${getString(R.string.subscriptions)} ($subCount)"
+    }
+
+    fun removeItem(videoId: String) {
+        feedAdapter?.removeItemById(videoId)
+        sortedFeed.removeAll { it.url!!.toID() != videoId }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // manually restore the recyclerview state due to https://github.com/material-components/material-components-android/issues/3473
+        binding.subChannels.layoutManager?.onRestoreInstanceState(subChannelsRecyclerViewState)
+        binding.subFeed.layoutManager?.onRestoreInstanceState(subFeedRecyclerViewState)
     }
 }

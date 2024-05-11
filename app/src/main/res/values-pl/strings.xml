@@ -104,7 +104,7 @@
     <string name="enabled">Włączono</string>
     <string name="disabled">Wyłączono</string>
     <string name="update_available_text">Dostępna nowa wersja. Kliknij, aby otworzyć stronę wydań na GitHubie.</string>
-    <string name="update_available">Dostępna jest wersja %1$s</string>
+    <string name="update_available">Aktualizacja jest dostępna</string>
     <string name="defaultIcon">Domyślna</string>
     <string name="app_uptodate">Uruchomiona jest najnowsza wersja.</string>
     <string name="appearance_summary">Dostosuj aplikację do swoich potrzeb</string>
@@ -538,4 +538,16 @@
     <string name="enqueue_playlist_description">Pokaż powiadomienie gdy nagranie z playlisty zostanie przygotowane do pobrania.</string>
     <string name="audio_language">Język audio</string>
     <string name="default_language">Domyślny</string>
+    <string name="show_updates">Sprawdzaj aktualizacje automatycznie</string>
+    <string name="behavior_when_minimized">Zachowanie po zminimalizowaniu</string>
+    <string name="external_player">Zewnętrzny odtwarzacz</string>
+    <string name="gestures">Gesty</string>
+    <string name="comments_count">Komentarze (%1$s)</string>
+    <string name="albums">Albumy</string>
+    <string name="import_temp_playlist">Zaimportować tymczasową playlistę?</string>
+    <string name="import_temp_playlist_summary">Czy chcesz utworzyć nową playlistę o nazwie „%1$s”? Playlista będzie zawierać %2$d filmów.</string>
+    <string name="title">Tytuł</string>
+    <string name="contribute_to_dearrow">Przyczyń się do DeArrow</string>
+    <string name="best_quality">Najwyższy</string>
+    <string name="thumbnail_time">Pokaż czas na miniaturze</string>
 </resources>

@@ -104,7 +104,7 @@
     <string name="piped">Piped</string>
     <string name="youtube">YouTube</string>
     <string name="playOnBackground">Arxa planda oynat</string>
-    <string name="update_available">%1$s versiyası mövcuddur</string>
+    <string name="update_available">Yeniləmə mövcuddur</string>
     <string name="update_available_text">Yeni yeniləmə mövcuddur. GitHub buraxılışlar səhifəsin açmaq üçün kliklə.</string>
     <string name="appearance">Görünüş</string>
     <string name="downloads">Yüklənənlər</string>
@@ -536,5 +536,12 @@
     <string name="gestures">Jestlər</string>
     <string name="external_player">Xarici oynadıcı</string>
     <string name="comments_count">Şərhlər (%1$s)</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
+    <string name="show_updates">Yeniləmələri avtomatik yoxla</string>
+    <string name="albums">Albomlar</string>
+    <string name="contribute_to_dearrow">DeArrow-a töhfə ver</string>
+    <string name="title">Başlıq</string>
+    <string name="thumbnail_time">Miniatür vaxtı</string>
+    <string name="import_temp_playlist">Müvəqqəti pleylist idxal edilsin?</string>
+    <string name="import_temp_playlist_summary">\'%1$s\' adlı yeni pleylist yaratmaq istəyirsiniz? Pleylistdə %2$d video olacaq.</string>
+    <string name="best_quality">Ən yaxşı</string>
 </resources>

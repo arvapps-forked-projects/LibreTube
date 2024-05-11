@@ -80,7 +80,7 @@
     <string name="enabled">Aan</string>
     <string name="disabled">Uit</string>
     <string name="piped">Piped</string>
-    <string name="update_available">Versie %1$s is beschikbaar</string>
+    <string name="update_available">Update beschikbaar</string>
     <string name="update_available_text">Nieuwe versie beschikbaar. Druk om de GitHub-uitgaven­pagina te openen.</string>
     <string name="createPlaylist">Afspeel­lijst aan­maken</string>
     <string name="loggedIn">Ingelogd</string>
@@ -472,7 +472,7 @@
     <string name="dearrow_summary">Geef meer accurate en minder sensationele titels en miniaturen weer. Verhoogt de laadtijden</string>
     <string name="notification_time_summary">Beperk de tijdspanne waarin streammeldingen worden weergegeven</string>
     <string name="alternative_pip_controls_summary">Toon alleen audio en overslaan in PiP in plaats van vooruit- en terugspoelen</string>
-    <string name="disable_proxy_summary">Laad video\'s en afbeeldingen rechtstreeks van de servers van YouTube.</string>
+    <string name="disable_proxy_summary">Laad video\'s en afbeeldingen rechtstreeks van de servers van YouTube</string>
     <string name="play_automatically_summary">Start het afspelen automatisch bij het selecteren van een video</string>
     <string name="emptyPlaylistDescription">De afspeellijstbeschrijving kan niet leeg zijn</string>
     <string name="swipe_controls_summary">Veeg tijdens volledig scherm om de helderheid en het volume aan te passen</string>
@@ -534,7 +534,14 @@
     <string name="behavior_when_minimized">Gedrag wanneer geminimaliseerd</string>
     <string name="gestures">Gebaren</string>
     <string name="download_playlist_note">Selecteer de maximale audio/videokwaliteit om te downloaden. Bijschriften worden alleen gedownload als ze beschikbaar zijn.</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="comments_count">Opmerkingen (%1$s)</string>
     <string name="external_player">Externe speler</string>
+    <string name="show_updates">Automatisch op updates controleren</string>
+    <string name="albums">Albums</string>
+    <string name="import_temp_playlist">Tĳdelĳke afspeel­lĳst importeren?</string>
+    <string name="import_temp_playlist_summary">Wilt u een nieuwe afspeel­lĳst maken met de naam ‘%1$s’? Deze bevat %2$d video\'s.</string>
+    <string name="thumbnail_time">Miniatuur­tĳd</string>
+    <string name="title">Titel</string>
+    <string name="contribute_to_dearrow">Bĳdragen aan DeArrow</string>
+    <string name="best_quality">Best</string>
 </resources>

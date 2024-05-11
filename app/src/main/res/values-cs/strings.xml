@@ -155,7 +155,7 @@
     <string name="auto_rotation">Automatické otáčení</string>
     <string name="landscape">Na šířku</string>
     <string name="portrait">Na výšku</string>
-    <string name="update_available">Je dostupná verze %1$s</string>
+    <string name="update_available">Je dostupná aktualizace</string>
     <string name="update_available_text">K dispozici je nová aktualizace. Klepnutím otevřete stránku s novinkami na GitHubu.</string>
     <string name="appearance">Vzhled</string>
     <string name="downloads">Stahování</string>
@@ -538,6 +538,13 @@
     <string name="gestures">Gesta</string>
     <string name="behavior_when_minimized">Chování při minimalizaci</string>
     <string name="external_player">Externí přehrávač</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="comments_count">Komentáře (%1$s)</string>
+    <string name="show_updates">Automaticky kontrolovat aktualizace</string>
+    <string name="albums">Alba</string>
+    <string name="import_temp_playlist_summary">Chcete importovat dočasný playlist s názvem „%1$s“? Playlist bude obsahovat %2$d videí.</string>
+    <string name="import_temp_playlist">Importovat dočasný playlist?</string>
+    <string name="contribute_to_dearrow">Přispět do DeArrow</string>
+    <string name="title">Název</string>
+    <string name="thumbnail_time">Čas miniatury</string>
+    <string name="best_quality">Nejlepší</string>
 </resources>

@@ -184,7 +184,7 @@
     <string name="invalid_filename">अमान्य फ़ाइल नाम!</string>
     <string name="category_preview_summary">अतिरिक्त जानकारी के बिना भविष्य की सामग्री का विवरण देने वाले सेगमेंट के लिए। यदि इसमें क्लिप शामिल हैं जो केवल यहां दिखाई देती हैं, तो बहुत संभव है कि यह गलत श्रेणी हो</string>
     <string name="category_filler_summary">केवल फिलर या हास्य के लिए जोड़े गए स्पर्शरेखा दृश्यों के लिए वीडियो की मुख्य सामग्री को समझने की आवश्यकता नहीं है</string>
-    <string name="update_available">संस्करण %1$s उपलब्ध है</string>
+    <string name="update_available">अपडेट उपलब्ध है</string>
     <string name="audio_track">ऑडियो ट्रैक</string>
     <string name="downloads">डाउनलोडस</string>
     <string name="livestreams">लाइव स्ट्रीम</string>
@@ -534,7 +534,14 @@
     <string name="also_clear_watch_positions">देखने की स्थिति भी साफ़ करें</string>
     <string name="behavior_when_minimized">व्यवहार जब मिनीमाईज किया जाए</string>
     <string name="comments_count">टिप्पणियाँ (%1$s)</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="external_player">बाहरी प्लेयर</string>
     <string name="gestures">इशारे</string>
+    <string name="show_updates">अपडेट स्वचालित रूप से जांचें</string>
+    <string name="albums">एलबम</string>
+    <string name="import_temp_playlist">अस्थायी प्लेलिस्ट आयात करें?</string>
+    <string name="import_temp_playlist_summary">क्या आप \'%1$s\' नामक एक नई प्लेलिस्ट बनाना चाहते हैं? प्लेलिस्ट में %2$d वीडियो होंगे।</string>
+    <string name="contribute_to_dearrow">DeArrow में योगदान करें</string>
+    <string name="title">शीर्षक</string>
+    <string name="thumbnail_time">थंबनेल समय</string>
+    <string name="best_quality">श्रेष्ठ</string>
 </resources>

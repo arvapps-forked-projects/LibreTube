@@ -5,7 +5,9 @@ import android.icu.text.RelativeDateTimeFormatter
 import android.net.Uri
 import android.os.Build
 import android.text.format.DateUtils
+import com.github.libretube.BuildConfig
 import com.github.libretube.R
+import kotlinx.datetime.toJavaLocalDate
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -14,7 +16,6 @@ import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
 import kotlin.time.Duration
 import kotlinx.datetime.LocalDate as KotlinLocalDate
-import kotlinx.datetime.toJavaLocalDate
 
 object TextUtils {
     /**
@@ -97,5 +98,9 @@ object TextUtils {
     fun limitTextToLength(text: String, maxLength: Int): String {
         if (text.length <= maxLength) return text
         return text.take(maxLength) + "…"
+    }
+
+    fun getUserAgent(context: Context): String {
+        return "${context.packageName}/${BuildConfig.VERSION_NAME}"
     }
 }

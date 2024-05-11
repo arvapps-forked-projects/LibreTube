@@ -1,12 +1,14 @@
 package com.github.libretube.services
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import android.os.Handler
+import android.content.IntentFilter
 import android.os.IBinder
-import android.os.Looper
 import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.C
@@ -22,23 +24,23 @@ import com.github.libretube.db.DatabaseHolder
 import com.github.libretube.db.obj.DownloadWithItems
 import com.github.libretube.enums.FileType
 import com.github.libretube.enums.NotificationId
+import com.github.libretube.enums.PlayerEvent
+import com.github.libretube.extensions.serializableExtra
 import com.github.libretube.extensions.toAndroidUri
 import com.github.libretube.extensions.updateParameters
 import com.github.libretube.helpers.PlayerHelper
 import com.github.libretube.obj.PlayerNotificationData
 import com.github.libretube.util.NowPlayingNotification
 import com.github.libretube.util.PauseableTimer
-import kotlin.io.path.exists
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.io.path.exists
 
 /**
  * A service to play downloaded audio in the background
  */
 class OfflinePlayerService : LifecycleService() {
-    val handler = Handler(Looper.getMainLooper())
-
     private var player: ExoPlayer? = null
     private var nowPlayingNotification: NowPlayingNotification? = null
     private lateinit var videoId: String
@@ -75,6 +77,20 @@ class OfflinePlayerService : LifecycleService() {
         }
     }
 
+    private val playerActionReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val event = intent.serializableExtra<PlayerEvent>(PlayerHelper.CONTROL_TYPE) ?: return
+            val player = player ?: return
+
+            if (PlayerHelper.handlePlayerAction(player, event)) return
+
+            when (event) {
+                PlayerEvent.Stop -> onDestroy()
+                else -> Unit
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -85,6 +101,13 @@ class OfflinePlayerService : LifecycleService() {
             .build()
 
         startForeground(NotificationId.PLAYER_PLAYBACK.id, notification)
+
+        ContextCompat.registerReceiver(
+            this,
+            playerActionReceiver,
+            IntentFilter(PlayerHelper.getIntentActionName(this)),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -182,13 +205,18 @@ class OfflinePlayerService : LifecycleService() {
         saveWatchPosition()
 
         nowPlayingNotification?.destroySelf()
-
-        player?.stop()
-        player?.release()
-        player = null
         nowPlayingNotification = null
-
         watchPositionTimer.destroy()
+
+        runCatching {
+            player?.stop()
+            player?.release()
+        }
+        player = null
+
+        runCatching {
+            unregisterReceiver(playerActionReceiver)
+        }
 
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()

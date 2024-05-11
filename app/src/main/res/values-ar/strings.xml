@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="instances">اختر…</string>
+    <string name="instances">إختر…</string>
     <string name="customInstance">مخصص</string>
     <string name="registered">تم إنشاء حساب. تستطيع الآن الاشتراك بالقنوات.</string>
     <string name="search_hint">بحث</string>
@@ -17,9 +17,9 @@
     <string name="yes">نعم</string>
     <string name="login">تسجيل الدخول</string>
     <string name="logout">تسجيل الخروج</string>
-    <string name="username">اسم المستخدم</string>
+    <string name="username">إسم المستخدم</string>
     <string name="register">تسجيل جديد</string>
-    <string name="already_logged_in">لقد سجلت دخولك من قبل، يمكنك تسجيل الخروج من حسابك.</string>
+    <string name="already_logged_in">لقد سجلت دخولك بالفعل، يمكنك تسجيل الخروج من حسابك.</string>
     <string name="cannotDownload">لا يمكن تنزيل هذا البث.</string>
     <string name="region">المنطقة</string>
     <string name="importsuccess">مشترك</string>
@@ -128,7 +128,7 @@
     <string name="category_music_offtopic_summary">فقط للاستخدام في مقاطع الفيديو الموسيقية. يجب أن تغطي أجزاء من الفيديو وليس جزءا من الخلطات الرسمية. في النهاية ، يجب أن يشبه الفيديو Spotify أو أي إصدار مختلط آخر قدر الإمكان ، أو يقلل من التحدث أو تشتيت الانتباه</string>
     <string name="buffering_goal">التحميل المسبق</string>
     <string name="buffering_goal_summary">الحد الأقصى لعدد ثواني الفيديو للتخزين المؤقت</string>
-    <string name="update_available">الإصدار %1$s متاح</string>
+    <string name="update_available">التحديث متاح</string>
     <string name="downloads">التنزيلات</string>
     <string name="legacyIcon">الإرث الضائع</string>
     <string name="gradientIcon">التدرج اللوني</string>
@@ -546,7 +546,14 @@
     <string name="also_clear_watch_positions">أيضًا امسح مواضع المشاهدة</string>
     <string name="gestures">الإيماءات</string>
     <string name="behavior_when_minimized">السلوك عند التصغير</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="comments_count">التعليقات (%1$s)</string>
     <string name="external_player">مشغل خارجي</string>
+    <string name="show_updates">التحقق من التحديثات تلقائيا</string>
+    <string name="albums">الألبومات</string>
+    <string name="import_temp_playlist">هل تريد استيراد قائمة التشغيل المؤقتة؟</string>
+    <string name="import_temp_playlist_summary">هل تريد إنشاء قائمة تشغيل جديدة باسم \'%1$s\'؟ ستحتوي قائمة التشغيل على %2$d مقطع فيديو.</string>
+    <string name="title">العنوان</string>
+    <string name="contribute_to_dearrow">المساهمة في DeArrow</string>
+    <string name="thumbnail_time">وقت الصورة المصغرة</string>
+    <string name="best_quality">الأفضل</string>
 </resources>

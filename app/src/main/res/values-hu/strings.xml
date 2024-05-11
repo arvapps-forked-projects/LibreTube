@@ -230,7 +230,7 @@
     <string name="caption_settings">Feliratok</string>
     <string name="playerAudioFormat">Hangformátum a lejátszóhoz</string>
     <string name="playerAudioQuality">Hangminőség</string>
-    <string name="update_available">%1$s verzió elérhető</string>
+    <string name="update_available">Frissítés elérhető</string>
     <string name="app_icon">Ikon</string>
     <string name="downloads">Letöltések</string>
     <string name="network_wifi">Csak wifin</string>
@@ -534,7 +534,14 @@
     <string name="also_clear_watch_positions">A megtekintési pozíciókat is törölje</string>
     <string name="behavior_when_minimized">Viselkedés minimalizálva</string>
     <string name="gestures">Gesztusok</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="comments_count">Hozzászólások (%1$s)</string>
     <string name="external_player">Külső lejátszó</string>
+    <string name="albums">Albumok</string>
+    <string name="show_updates">A frissítések automatikus ellenőrzése</string>
+    <string name="import_temp_playlist">Importálja az átmeneti lejátszási listát?</string>
+    <string name="import_temp_playlist_summary">Szeretne új lejátszási listát létrehozni „%1$s” néven? A lejátszási lista %2$d videót fog tartalmazni.</string>
+    <string name="title">Cím</string>
+    <string name="thumbnail_time">Miniatűr ideje</string>
+    <string name="contribute_to_dearrow">Közreműködés a DeArrow-hoz</string>
+    <string name="best_quality">Legjobb</string>
 </resources>

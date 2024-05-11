@@ -3,11 +3,13 @@ package com.github.libretube.ui.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.ScrollView
 import androidx.activity.addCallback
 import androidx.activity.viewModels
@@ -30,6 +32,7 @@ import com.github.libretube.compat.PictureInPictureCompat
 import com.github.libretube.constants.IntentData
 import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.databinding.ActivityMainBinding
+import com.github.libretube.extensions.anyChildFocused
 import com.github.libretube.extensions.toID
 import com.github.libretube.helpers.NavBarHelper
 import com.github.libretube.helpers.NavigationHelper
@@ -39,6 +42,7 @@ import com.github.libretube.helpers.ThemeHelper
 import com.github.libretube.helpers.WindowHelper
 import com.github.libretube.ui.base.BaseActivity
 import com.github.libretube.ui.dialogs.ErrorDialog
+import com.github.libretube.ui.dialogs.ImportTempPlaylistDialog
 import com.github.libretube.ui.fragments.AudioPlayerFragment
 import com.github.libretube.ui.fragments.DownloadsFragment
 import com.github.libretube.ui.fragments.PlayerFragment
@@ -46,6 +50,7 @@ import com.github.libretube.ui.models.PlayerViewModel
 import com.github.libretube.ui.models.SearchViewModel
 import com.github.libretube.ui.models.SubscriptionsViewModel
 import com.github.libretube.util.UpdateChecker
+import com.google.android.material.elevation.SurfaceColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -107,7 +112,10 @@ class MainActivity : BaseActivity() {
         }
 
         // sets the color if the navigation bar is visible
-        ThemeHelper.setSystemBarColors(this, window, binding.bottomNav.menu.size() > 0)
+        val bottomNavColor = SurfaceColors.getColorForElevation(this, binding.bottomNav.elevation).takeIf {
+            binding.bottomNav.menu.size() > 0
+        }
+        ThemeHelper.setSystemBarColors(this, window, bottomNavColor)
 
         // set default tab as start fragment
         navController.graph = navController.navInflater.inflate(R.navigation.nav).also {
@@ -149,7 +157,10 @@ class MainActivity : BaseActivity() {
 
         onBackPressedDispatcher.addCallback {
             if (playerViewModel.isFullscreen.value == true) {
-                val fullscreenUnsetSuccess = runOnPlayerFragment { unsetFullscreen() }
+                val fullscreenUnsetSuccess = runOnPlayerFragment {
+                    unsetFullscreen()
+                    true
+                }
                 if (fullscreenUnsetSuccess) return@addCallback
             }
 
@@ -166,9 +177,14 @@ class MainActivity : BaseActivity() {
                     onUserLeaveHint()
                 }
 
+                R.id.searchFragment -> {
+                    if (searchView.anyChildFocused()) searchView.clearFocus()
+                    else navController.popBackStack()
+                }
+
                 R.id.searchResultFragment -> {
                     navController.popBackStack(R.id.searchFragment, true) ||
-                        navController.popBackStack()
+                            navController.popBackStack()
                 }
 
                 else -> {
@@ -248,9 +264,10 @@ class MainActivity : BaseActivity() {
     }
 
     private fun isSearchInProgress(): Boolean {
-        if (!::navController.isInitialized) return false
+        if (!this::navController.isInitialized) return false
         val id = navController.currentDestination?.id ?: return false
-        return id in listOf(R.id.searchFragment, R.id.searchResultFragment, R.id.channelFragment)
+
+        return id in listOf(R.id.searchFragment, R.id.searchResultFragment, R.id.channelFragment, R.id.playlistFragment)
     }
 
     override fun invalidateMenu() {
@@ -415,12 +432,40 @@ class MainActivity : BaseActivity() {
         intent?.getStringExtra(IntentData.playlistId)?.let {
             navController.navigate(NavDirections.openPlaylist(playlistId = it))
         }
+        intent?.getStringArrayExtra(IntentData.videoIds)?.let {
+            ImportTempPlaylistDialog()
+                .apply {
+                    arguments = bundleOf(
+                        IntentData.playlistName to intent?.getStringExtra(IntentData.playlistName),
+                        IntentData.videoIds to it
+                    )
+                }
+                .show(supportFragmentManager, null)
+        }
         intent?.getStringExtra(IntentData.videoId)?.let {
-            NavigationHelper.navigateVideo(
-                context = this,
-                videoUrlOrId = it,
-                timestamp = intent.getLongExtra(IntentData.timeStamp, 0L)
-            )
+            // the below explained work around only seems to work on Android 11 and above
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // the bottom navigation bar has to be created before opening the video
+                // otherwise the player layout measures aren't calculated properly
+                // and the miniplayer is opened at a closed state and overlapping the navigation bar
+                binding.bottomNav.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        NavigationHelper.navigateVideo(
+                            context = this@MainActivity,
+                            videoUrlOrId = it,
+                            timestamp = intent.getLongExtra(IntentData.timeStamp, 0L)
+                        )
+
+                        binding.bottomNav.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                    }
+                })
+            } else {
+                NavigationHelper.navigateVideo(
+                    context = this@MainActivity,
+                    videoUrlOrId = it,
+                    timestamp = intent.getLongExtra(IntentData.timeStamp, 0L)
+                )
+            }
         }
         intent?.getStringExtra(IntentData.query)?.let {
             savedSearchQuery = it
@@ -455,7 +500,6 @@ class MainActivity : BaseActivity() {
                 linLayout.isVisible = true
                 playerMotionLayout.setTransitionDuration(250)
                 playerMotionLayout.transitionToEnd()
-                playerMotionLayout.getConstraintSet(R.id.start).constrainHeight(R.id.player, 0)
                 playerMotionLayout.enableTransition(R.id.yt_transition, true)
             }
             (fragment as? AudioPlayerFragment)?.binding?.apply {
@@ -498,7 +542,10 @@ class MainActivity : BaseActivity() {
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
 
-        runOnPlayerFragment { onUserLeaveHint() }
+        runOnPlayerFragment {
+            onUserLeaveHint()
+            true
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -508,19 +555,21 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        return runOnPlayerFragment { onKeyUp(keyCode, event) }
+        if (runOnPlayerFragment { onKeyUp(keyCode) }) {
+            return true
+        }
+
+        return super.onKeyUp(keyCode, event)
     }
 
     /**
      * Attempt to run code on the player fragment if running
      * Returns true if a running player fragment was found and the action got consumed, else false
      */
-    private fun runOnPlayerFragment(action: PlayerFragment.() -> Unit): Boolean {
-        supportFragmentManager.fragments.filterIsInstance<PlayerFragment>()
+    private fun runOnPlayerFragment(action: PlayerFragment.() -> Boolean): Boolean {
+        return supportFragmentManager.fragments.filterIsInstance<PlayerFragment>()
             .firstOrNull()
             ?.let(action)
-            ?.run { return true }
-
-        return false
+            ?: false
     }
 }

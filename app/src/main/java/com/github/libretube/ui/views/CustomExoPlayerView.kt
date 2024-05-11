@@ -17,10 +17,12 @@ import android.view.Window
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.marginStart
 import androidx.core.view.updateLayoutParams
@@ -34,6 +36,7 @@ import androidx.media3.ui.PlayerView
 import androidx.media3.ui.SubtitleView
 import androidx.media3.ui.TimeBar
 import com.github.libretube.R
+import com.github.libretube.api.obj.ChapterSegment
 import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.databinding.DoubleTapOverlayBinding
 import com.github.libretube.databinding.ExoStyledPlayerControlViewBinding
@@ -52,19 +55,19 @@ import com.github.libretube.helpers.WindowHelper
 import com.github.libretube.obj.BottomSheetItem
 import com.github.libretube.ui.base.BaseActivity
 import com.github.libretube.ui.extensions.toggleSystemBars
-import com.github.libretube.ui.extensions.trySetTooltip
 import com.github.libretube.ui.fragments.PlayerFragment
 import com.github.libretube.ui.interfaces.PlayerGestureOptions
 import com.github.libretube.ui.interfaces.PlayerOptions
 import com.github.libretube.ui.listeners.PlayerGestureController
 import com.github.libretube.ui.sheets.BaseBottomSheet
+import com.github.libretube.ui.sheets.ChaptersBottomSheet
 import com.github.libretube.ui.sheets.PlaybackOptionsSheet
 import com.github.libretube.ui.sheets.SleepTimerSheet
 import com.github.libretube.util.PlayingQueue
 
 @SuppressLint("ClickableViewAccessibility")
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-open class CustomExoPlayerView(
+abstract class CustomExoPlayerView(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : PlayerView(context, attributeSet), PlayerOptions, PlayerGestureOptions {
@@ -79,6 +82,8 @@ open class CustomExoPlayerView(
     private lateinit var brightnessHelper: BrightnessHelper
     private lateinit var audioHelper: AudioHelper
     private var doubleTapOverlayBinding: DoubleTapOverlayBinding? = null
+    private var chaptersBottomSheet: ChaptersBottomSheet? = null
+    private var scrubbingTimeBar = false
 
     /**
      * Objects from the parent fragment
@@ -141,7 +146,7 @@ open class CustomExoPlayerView(
             }
 
             binding.lockPlayer.setImageResource(icon)
-            binding.lockPlayer.trySetTooltip(context.getString(tooltip))
+            TooltipCompat.setTooltipText(binding.lockPlayer, context.getString(tooltip))
 
             // show/hide all the controls
             lockPlayer(isPlayerLocked)
@@ -165,35 +170,29 @@ open class CustomExoPlayerView(
         player?.addListener(object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 super.onEvents(player, events)
-                if (events.containsAny(
-                        Player.EVENT_PLAYBACK_STATE_CHANGED,
-                        Player.EVENT_IS_PLAYING_CHANGED,
-                        Player.EVENT_PLAY_WHEN_READY_CHANGED
-                    )
-                ) {
-                    binding.playPauseBTN.setImageResource(
-                        PlayerHelper.getPlayPauseActionIcon(player)
-                    )
-
-                    // keep screen on if the video is playing
-                    keepScreenOn = player.isPlaying == true
-                    onPlayerEvent(player, events)
-                }
+                this@CustomExoPlayerView.onPlaybackEvents(player, events)
             }
         })
 
+        player?.let { binding.exoProgress.setPlayer(it) }
         // prevent the controls from disappearing while scrubbing the time bar
-        binding.exoProgress.addListener(object : TimeBar.OnScrubListener {
+        binding.exoProgress.addSeekBarListener(object : TimeBar.OnScrubListener {
             override fun onScrubStart(timeBar: TimeBar, position: Long) {
                 cancelHideControllerTask()
             }
 
             override fun onScrubMove(timeBar: TimeBar, position: Long) {
                 cancelHideControllerTask()
+
+                setCurrentChapterName(forceUpdate = true, enqueueNew = false)
+                scrubbingTimeBar = true
             }
 
             override fun onScrubStop(timeBar: TimeBar, position: Long, canceled: Boolean) {
                 enqueueHideControllerTask()
+
+                setCurrentChapterName(forceUpdate = true, enqueueNew = false)
+                scrubbingTimeBar = false
             }
         })
 
@@ -216,6 +215,46 @@ open class CustomExoPlayerView(
         }
 
         updateCurrentPosition()
+
+        // enable the chapters dialog in the player
+        binding.chapterName.setOnClickListener {
+            val sheet = chaptersBottomSheet ?: ChaptersBottomSheet().also {
+                chaptersBottomSheet = it
+            }
+
+            if (sheet.isVisible) {
+                sheet.dismiss()
+            } else {
+                sheet.show(activity.supportFragmentManager)
+            }
+        }
+    }
+
+    // set the name of the video chapter in the exoPlayerView
+   fun setCurrentChapterName(forceUpdate: Boolean = false, enqueueNew: Boolean = true) {
+       val player = player ?: return
+        val chapters = getChapters()
+
+        binding.chapterName.isInvisible = chapters.isEmpty()
+
+        // the following logic to set the chapter title can be skipped if no chapters are available
+        if (chapters.isEmpty()) return
+
+        // call the function again in 100ms
+        if (enqueueNew) postDelayed(this::setCurrentChapterName, 100)
+
+        // if the user is scrubbing the time bar, don't update
+        if (scrubbingTimeBar && !forceUpdate) return
+
+        val newChapterName =
+            PlayerHelper.getCurrentChapterIndex(player.currentPosition, chapters)
+                ?.let { chapters[it].title.trim() }
+                ?: context.getString(R.string.no_chapter)
+
+        // change the chapter name textView text to the chapterName
+        if (newChapterName != binding.chapterName.text) {
+            binding.chapterName.text = newChapterName
+        }
     }
 
     fun toggleSystemBars(showBars: Boolean) {
@@ -265,6 +304,12 @@ open class CustomExoPlayerView(
         cancelHideControllerTask()
         // automatically hide the controller after 2 seconds
         enqueueHideControllerTask()
+        super.showController()
+    }
+
+    fun showControllerPermanently() {
+        // remove the previous callback from the queue to prevent a flashing behavior
+        cancelHideControllerTask()
         super.showController()
     }
 
@@ -579,7 +624,7 @@ open class CustomExoPlayerView(
         updateTopBarMargin()
 
         // don't add extra padding if there's no cutout and no margin set that would need to be undone
-        if (!(context as BaseActivity).hasCutout && binding.topBar.marginStart == LANDSCAPE_MARGIN_HORIZONTAL_NONE) return
+        if (!activity.hasCutout && binding.topBar.marginStart == LANDSCAPE_MARGIN_HORIZONTAL_NONE) return
 
         // add a margin to the top and the bottom bar in landscape mode for notches
         val isForcedPortrait = activity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
@@ -734,7 +779,7 @@ open class CustomExoPlayerView(
         return super.onInterceptTouchEvent(ev)
     }
 
-    fun onKeyBoardAction(keyCode: Int, event: KeyEvent?): Boolean {
+    fun onKeyBoardAction(keyCode: Int): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_SPACE, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> {
                 player?.togglePlayPauseState()
@@ -756,13 +801,32 @@ open class CustomExoPlayerView(
                 fragmentManager.fragments.filterIsInstance<PlayerFragment>().firstOrNull()
                     ?.toggleFullscreen()
             }
-            else -> super.onKeyUp(keyCode, event)
+            else -> return false
         }
 
         return true
     }
 
+    open fun onPlaybackEvents(player: Player, events: Player.Events) {
+        if (events.containsAny(
+                Player.EVENT_PLAYBACK_STATE_CHANGED,
+                Player.EVENT_IS_PLAYING_CHANGED,
+                Player.EVENT_PLAY_WHEN_READY_CHANGED
+            )
+        ) {
+            binding.playPauseBTN.setImageResource(
+                PlayerHelper.getPlayPauseActionIcon(player)
+            )
+
+            // keep screen on if the video is playing
+            keepScreenOn = player.isPlaying == true
+            onPlayerEvent(player, events)
+        }
+    }
+
     open fun minimizeOrExitPlayer() = Unit
+
+    abstract fun getChapters(): List<ChapterSegment>
 
     open fun getWindow(): Window = activity.window
 

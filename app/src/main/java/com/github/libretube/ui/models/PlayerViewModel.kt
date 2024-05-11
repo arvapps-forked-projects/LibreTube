@@ -1,4 +1,3 @@
-
 package com.github.libretube.ui.models
 
 import android.content.Context
@@ -19,12 +18,13 @@ import com.github.libretube.api.obj.Subtitle
 import com.github.libretube.helpers.PlayerHelper
 import com.github.libretube.util.NowPlayingNotification
 import com.github.libretube.util.deArrow
-import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import retrofit2.HttpException
+import java.io.IOException
 
+@UnstableApi
 class PlayerViewModel : ViewModel() {
     var player: ExoPlayer? = null
     var trackSelector: DefaultTrackSelector? = null
@@ -37,10 +37,11 @@ class PlayerViewModel : ViewModel() {
     var sponsorBlockConfig = PlayerHelper.getSponsorBlockCategories()
 
     /**
-     * Whether to continue using the current player
+     * Whether an orientation change is in progress, so that the current player should be continued to use
+     *
      * Set to true if the activity will be recreated due to an orientation change
      */
-    var shouldUseExistingPlayer = false
+    var isOrientationChangeInProgress = false
 
     val isMiniPlayerVisible = MutableLiveData(false)
     val isFullscreen = MutableLiveData(false)
@@ -50,18 +51,17 @@ class PlayerViewModel : ViewModel() {
     val chaptersLiveData = MutableLiveData<List<ChapterSegment>>()
 
     val chapters get() = chaptersLiveData.value.orEmpty()
+    var sponsorBlockEnabled = PlayerHelper.sponsorBlockEnabled
 
     /**
      * @return pair of the stream info and the error message if the request was not successful
      */
     suspend fun fetchVideoInfo(context: Context, videoId: String): Pair<Streams?, String?> =
         withContext(Dispatchers.IO) {
-            if (shouldUseExistingPlayer && streamsInfo != null) return@withContext streamsInfo to null
+            if (isOrientationChangeInProgress && streamsInfo != null) return@withContext streamsInfo to null
 
             streamsInfo = try {
-                RetrofitInstance.api.getStreams(videoId).apply {
-                    relatedStreams = relatedStreams.deArrow()
-                }
+                RetrofitInstance.api.getStreams(videoId).deArrow(videoId)
             } catch (e: IOException) {
                 return@withContext null to context.getString(R.string.unknown_error)
             } catch (e: HttpException) {
@@ -75,7 +75,7 @@ class PlayerViewModel : ViewModel() {
         }
 
     suspend fun fetchSponsorBlockSegments(videoId: String) = withContext(Dispatchers.IO) {
-        if (sponsorBlockConfig.isEmpty() || shouldUseExistingPlayer) return@withContext
+        if (sponsorBlockConfig.isEmpty() || isOrientationChangeInProgress) return@withContext
 
         runCatching {
             segments =
@@ -88,7 +88,7 @@ class PlayerViewModel : ViewModel() {
 
     @OptIn(UnstableApi::class)
     fun keepOrCreatePlayer(context: Context): Pair<ExoPlayer, DefaultTrackSelector> {
-        if (!shouldUseExistingPlayer || player == null || trackSelector == null) {
+        if (!isOrientationChangeInProgress || player == null || trackSelector == null) {
             this.trackSelector = DefaultTrackSelector(context)
             this.player = PlayerHelper.createPlayer(context, trackSelector!!, false)
         }

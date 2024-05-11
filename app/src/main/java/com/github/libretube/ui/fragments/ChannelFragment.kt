@@ -1,6 +1,8 @@
 package com.github.libretube.ui.fragments
 
+import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.libretube.R
 import com.github.libretube.api.RetrofitInstance
 import com.github.libretube.api.obj.ChannelTab
@@ -34,11 +37,11 @@ import com.github.libretube.ui.extensions.addOnBottomReachedListener
 import com.github.libretube.ui.extensions.setupSubscriptionButton
 import com.github.libretube.ui.sheets.AddChannelToGroupSheet
 import com.github.libretube.util.deArrow
-import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import java.io.IOException
 
 class ChannelFragment : DynamicLayoutManagerFragment() {
     private var _binding: FragmentChannelBinding? = null
@@ -54,13 +57,14 @@ class ChannelFragment : DynamicLayoutManagerFragment() {
         ChannelTabs.Shorts,
         ChannelTabs.Livestreams,
         ChannelTabs.Playlists,
-        ChannelTabs.Channels
+        ChannelTabs.Albums
     )
     private var channelTabs: List<ChannelTab> = emptyList()
     private var nextPages = Array<String?>(5) { null }
     private var searchChannelAdapter: SearchChannelAdapter? = null
 
     private var isAppBarFullyExpanded: Boolean = true
+    private var recyclerViewState: Parcelable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +112,13 @@ class ChannelFragment : DynamicLayoutManagerFragment() {
 
             loadNextPage()
         }
+
+        binding.channelRecView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                recyclerViewState = binding.channelRecView.layoutManager?.onSaveInstanceState()
+            }
+        })
 
         fetchChannel()
     }
@@ -337,5 +348,12 @@ class ChannelFragment : DynamicLayoutManagerFragment() {
         }
 
         return newContent.nextpage
+    }
+
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // manually restore the recyclerview state due to https://github.com/material-components/material-components-android/issues/3473
+        binding.channelRecView.layoutManager?.onRestoreInstanceState(recyclerViewState)
     }
 }

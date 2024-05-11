@@ -104,7 +104,7 @@
     <string name="piped">Piped</string>
     <string name="youtube">YouTube</string>
     <string name="playOnBackground">Arka planda oynat</string>
-    <string name="update_available">%1$s Sürümü mevcut</string>
+    <string name="update_available">Güncelleme var</string>
     <string name="update_available_text">Yeni versiyon mevcut. GitHub sürümler sayfasını açmak için tıklayın.</string>
     <string name="appearance">Görünüm</string>
     <string name="downloads">İndirilenler</string>
@@ -535,6 +535,13 @@
     <string name="behavior_when_minimized">Küçültüldüğündeki davranış</string>
     <string name="gestures">Hareketler</string>
     <string name="comments_count">Yorumlar (%1$s)</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="external_player">Harici oynatıcı</string>
+    <string name="show_updates">Güncellemeleri otomatik denetle</string>
+    <string name="albums">Albümler</string>
+    <string name="import_temp_playlist">Geçici oynatma listesi içe aktarılsın mı?</string>
+    <string name="import_temp_playlist_summary">\'%1$s\' adında yeni bir oynatma listesi oluşturmak istiyor musunuz? Oynatma listesinde %2$d video olacak.</string>
+    <string name="contribute_to_dearrow">DeArrow\'a katkıda bulunun</string>
+    <string name="title">Başlık</string>
+    <string name="thumbnail_time">Küçük resim zamanı</string>
+    <string name="best_quality">En iyi</string>
 </resources>

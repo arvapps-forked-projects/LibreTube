@@ -105,7 +105,7 @@
     <string name="disabled">Desactivado</string>
     <string name="playOnBackground">Reproducir en segundo plano</string>
     <string name="update_available_text">Nueva actualización disponible. Toca para ir a la página de descargas de GitHub.</string>
-    <string name="update_available">La versión %1$s está disponible</string>
+    <string name="update_available">Actualización disponible</string>
     <string name="appearance">Apariencia</string>
     <string name="shareTo">Enviar URL a</string>
     <string name="defaultIcon">Predeterminado</string>
@@ -537,7 +537,14 @@
     <string name="behavior_when_minimized">Comportamiento al minimizar</string>
     <string name="gestures">Gestos</string>
     <string name="also_clear_watch_positions">Borre también las posiciones de visualización</string>
-    <string name="commentedTimeWithSeparator">• %1$s</string>
     <string name="external_player">Reproductor externo</string>
     <string name="comments_count">Comentarios (%1$s)</string>
+    <string name="show_updates">Comprobar las actualizaciones automáticamente</string>
+    <string name="albums">Álbumes</string>
+    <string name="import_temp_playlist_summary">¿Desea crear una nueva lista de reproducción llamada \'%1$s\'? La lista de reproducción contendrá %2$d vídeos.</string>
+    <string name="import_temp_playlist">¿Importar lista de reproducción temporal?</string>
+    <string name="contribute_to_dearrow">Contribuir a DeArrow</string>
+    <string name="title">Título</string>
+    <string name="thumbnail_time">Duracción de la miniatura</string>
+    <string name="best_quality">Mejor</string>
 </resources>
